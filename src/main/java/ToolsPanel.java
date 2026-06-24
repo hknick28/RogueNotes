@@ -28,6 +28,7 @@ public class ToolsPanel extends JPanel {
       chooser.setFileFilter(filter);
       int returnVal = chooser.showOpenDialog(this);
       if(returnVal == JFileChooser.APPROVE_OPTION) {
+        // Debugging message
         System.out.println("You chose to open this file: " +
                 chooser.getSelectedFile().getName());
       }
