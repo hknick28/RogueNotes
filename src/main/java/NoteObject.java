@@ -1,4 +1,7 @@
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class NoteObject {
   private String name;
@@ -25,4 +28,33 @@ public class NoteObject {
 
   public int y(){return y;}
   public void y(int y){this.y=y;}
+
+  public void draw(JPanel canvas){
+    int paddedWidth = 15;
+    int paddedHeight = 10;
+
+    // create the marker
+    JLabel label = new JLabel(name);
+    label.setForeground(new Color(50, 150, 250));
+    label.setFont(new Font("Times New Roman", Font.BOLD, 20));
+
+    Dimension size = label.getPreferredSize();
+    label.setBounds(this.x(), this.y(), size.width + paddedWidth, size.height + paddedHeight);
+
+    // add listener for dragging marker
+    MouseAdapter dragListener = setupDragListener();
+
+    // Add the label to the canvas
+    canvas.add(label);
+    canvas.repaint();
+  }
+
+  private MouseAdapter setupDragListener() {
+    return new MouseAdapter() {
+      public void mousePressed(MouseEvent e) {
+      }
+
+      public void mouseDragged(MouseEvent e) {}
+    };
+  }
 }
