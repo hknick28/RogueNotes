@@ -1,6 +1,8 @@
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
+import java.io.File;
+import java.util.function.Consumer;
 
 /**
  * Panel that provides access to tools for the users to utilize
@@ -9,6 +11,7 @@ import java.awt.*;
  */
 public class ToolsPanel extends JPanel {
 
+  private Consumer<File> onLoadImg;
   public ToolsPanel(){
     this.setLayout(new GridLayout(1,3));
     this.setBackground(Color.white);
@@ -28,12 +31,24 @@ public class ToolsPanel extends JPanel {
       chooser.setFileFilter(filter);
       int returnVal = chooser.showOpenDialog(this);
       if(returnVal == JFileChooser.APPROVE_OPTION) {
-        // Debugging message
-        System.out.println("You chose to open this file: " +
-                chooser.getSelectedFile().getName());
+
+        File file = chooser.getSelectedFile();
+
+        if(onLoadImg!=null){
+          //trigger if observer is present
+          onLoadImg.accept(file);
+        }
       }
     });
     return load;
+  }
+
+  /**
+   * Add load file observer.
+   * @param handler to be triggered when loading a file.
+   */
+  public void setOnLoadImg(Consumer<File> handler){
+    this.onLoadImg = handler;
   }
 }
 
