@@ -1,5 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class RogueNotes extends JFrame {
   public RogueNotes() {
@@ -16,4 +18,5 @@ public class RogueNotes extends JFrame {
     this.add(canvas,   BorderLayout.CENTER);
     this.setVisible(true);
   }
+
 }
