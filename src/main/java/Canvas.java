@@ -7,6 +7,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.stream.Stream;
 
 /**
  * Main canvas to store images and objects
@@ -15,10 +16,10 @@ import java.util.ArrayList;
  */
 public class Canvas extends JPanel {
   private BufferedImage image = null;//none by default
-  private ArrayList noteObjects;
+  private ArrayList<NoteObject> noteObjects;
 
   public Canvas() {
-    noteObjects = new ArrayList<NoteObject>();
+    noteObjects = new ArrayList<>();
     this.setBackground(Color.white);
     this.setLayout(new BorderLayout());
     initMouseListener();
@@ -45,8 +46,8 @@ public class Canvas extends JPanel {
     if(name == null || description == null){return;}
 
     note = new NoteObject(name, description, p.x, p.y);
-    noteObjects.add(note);
     note.draw(this);
+    noteObjects.add(note);
 
   }
 
@@ -72,5 +73,16 @@ public class Canvas extends JPanel {
     //draw img
     if(image == null) {return;}
     g.drawImage(image, 0, 0, this);
+
+    noteObjects.stream().forEach(note -> note.draw(this));
+
+  }
+
+  public boolean contains(NoteObject note){
+
+    boolean check = this.noteObjects.contains(note);
+
+    System.out.println(check);
+    return check;
   }
 }
