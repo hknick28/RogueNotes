@@ -3,11 +3,15 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.function.Consumer;
 
 public class NoteObject {
   private String name;
   private String description;
+
+  private ArrayList<NoteObject> childrenNotes;
 
   private int x;
   private int y;
@@ -21,11 +25,13 @@ public class NoteObject {
   public NoteObject(String name, String description, int x, int y){
     this.name = name;
     this.description = description;
+
+    childrenNotes = new ArrayList<>();
+
     this.x = x;
     this.y = y;
 
     setupLabel();
-
   }
 
   private void setupLabel() {
@@ -126,4 +132,13 @@ private MouseListener setupClickSelection() {
       this.updateCanvas = canvas;
     }
 
+
+    public void addNoteObject(NoteObject object){
+      assert object != null;
+      childrenNotes.add(object);
+    }
+
+    public ArrayList<NoteObject> getChildrenNotes(){
+      return (ArrayList<NoteObject>) Collections.unmodifiableList(childrenNotes);
+    }
 }

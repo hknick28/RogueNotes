@@ -74,15 +74,12 @@ public class Canvas extends JPanel {
     if(image == null) {return;}
     g.drawImage(image, 0, 0, this);
 
+    //redraw all objects on canvas
     noteObjects.stream().forEach(note -> note.draw(this));
 
   }
 
   public boolean contains(NoteObject note){
-
-    boolean check = this.noteObjects.contains(note);
-
-    System.out.println(check);
-    return check;
+    return this.noteObjects.contains(note);
   }
 }
