@@ -19,6 +19,7 @@ public class NoteObject {
   private Point dragStart;
 
   private Consumer<MouseEvent> updateCanvas;
+  private Consumer<MouseEvent> displayNoteInfo;
 
   private JLabel label;
 
@@ -64,12 +65,17 @@ public class NoteObject {
   public void y(int y){this.y=y;}
 
   public void draw(Canvas canvas){
+    if(canvas.contains(this)){return;}
+
     // Setup canvas as subscriber to observer
     this.dragEvent(e -> {canvas.repaint();});
+    this.doubleCLick(e -> {
+      canvas.displayInfo(NoteObject.this);
+    });
 
     // Add the label to the canvas
-    if(!canvas.contains(this)){
-      canvas.add(label); canvas.repaint();};
+      canvas.add(label);
+      canvas.repaint();
   }
 
 private MouseListener setupClickSelection() {
@@ -80,7 +86,11 @@ private MouseListener setupClickSelection() {
       }
 
       @Override
-      public void mouseClicked(MouseEvent e) {}
+      public void mouseClicked(MouseEvent e) {
+        if(e.getClickCount() != 2){return;}
+        System.out.println("double clicked");
+        displayNoteInfo.accept(e);
+      }
 
       @Override
       public void mouseReleased(MouseEvent e) {}
@@ -128,9 +138,14 @@ private MouseListener setupClickSelection() {
    *
    * @param canvas storing the label.
    */
-    public void dragEvent(Consumer<MouseEvent> canvas){
+    private void dragEvent(Consumer<MouseEvent> canvas){
       this.updateCanvas = canvas;
     }
+
+    private void doubleCLick(Consumer<MouseEvent> canvas){
+      this.displayNoteInfo = canvas;
+    }
+
 
 
     public void addNoteObject(NoteObject object){
@@ -141,4 +156,5 @@ private MouseListener setupClickSelection() {
     public ArrayList<NoteObject> getChildrenNotes(){
       return (ArrayList<NoteObject>) Collections.unmodifiableList(childrenNotes);
     }
+
 }

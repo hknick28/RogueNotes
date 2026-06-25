@@ -21,7 +21,7 @@ public class Canvas extends JPanel {
   public Canvas() {
     noteObjects = new ArrayList<>();
     this.setBackground(Color.white);
-    this.setLayout(new BorderLayout());
+    this.setLayout(null);
     initMouseListener();
   }
 
@@ -81,5 +81,22 @@ public class Canvas extends JPanel {
 
   public boolean contains(NoteObject note){
     return this.noteObjects.contains(note);
+  }
+
+  public void displayInfo(NoteObject noteObject) {
+    NoteInfo infoPanel = new NoteInfo(noteObject);
+
+    //cover the right half of window
+    int panelWidth = this.getWidth() / 2;
+    int panelHeight = this.getHeight();
+    int targetX = this.getWidth() - panelWidth;
+
+    infoPanel.setBounds(targetX, 0, panelWidth, panelHeight);
+
+    this.add(infoPanel);
+
+    //sit ontop of canvas contents
+    this.setComponentZOrder(infoPanel, 0);
+    repaint();
   }
 }
