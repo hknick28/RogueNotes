@@ -9,12 +9,19 @@ public class RogueNotes extends JFrame {
     this.setLocationRelativeTo(null);
 
     ToolsPanel tools = new ToolsPanel();
-    Canvas canvas = new Canvas();
+
+    JPanel panel = new JPanel();
+
+    Canvas canvas = new Canvas(panel);
+
+    panel.setLayout(new BorderLayout());
+
+    panel.add(canvas, BorderLayout.CENTER);
 
     tools.setOnLoadImg(file -> canvas.loadImg(file));
 
     this.add(tools,  BorderLayout.NORTH);
-    this.add(canvas,   BorderLayout.CENTER);
+    this.add(panel,   BorderLayout.CENTER);
     this.setVisible(true);
   }
 

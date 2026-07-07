@@ -17,11 +17,13 @@ import java.util.stream.Stream;
 public class Canvas extends JPanel {
   private BufferedImage image = null;//none by default
   private ArrayList<NoteObject> noteObjects;
+  private JPanel main_panel;
 
-  public Canvas() {
+  public Canvas(JPanel parent) {
+    main_panel = parent;
     noteObjects = new ArrayList<>();
     this.setBackground(Color.white);
-    this.setLayout(null);
+    this.setLayout(new BorderLayout());
     initMouseListener();
   }
 
@@ -84,19 +86,20 @@ public class Canvas extends JPanel {
   }
 
   public void displayInfo(NoteObject noteObject) {
-    NoteInfo infoPanel = new NoteInfo(noteObject);
+    NoteInfo infoPanel = new NoteInfo(noteObject, main_panel);
 
     //cover the right half of window
     int panelWidth = this.getWidth() / 2;
     int panelHeight = this.getHeight();
-    int targetX = this.getWidth() - panelWidth;
 
-    infoPanel.setBounds(targetX, 0, panelWidth, panelHeight);
+    infoPanel.setPreferredSize(new Dimension(panelWidth, panelHeight));
 
-    this.add(infoPanel);
+    main_panel.add(infoPanel, BorderLayout.EAST);
+
 
     //sit ontop of canvas contents
-    this.setComponentZOrder(infoPanel, 0);
-    repaint();
+    main_panel.setComponentZOrder(infoPanel, 0);
+    main_panel.revalidate();
+    main_panel.repaint();
   }
 }
