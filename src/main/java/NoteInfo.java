@@ -12,13 +12,9 @@ public class NoteInfo extends JPanel {
     this.setLayout(new BorderLayout());
 
     setupHeader();
-    this.setVisible(true);
-  }
+    displayNoteDetails();
 
-  private JButton createCloseWindowButton() {
-    JButton closeButton = new JButton("Close");
-    closeButton.addActionListener( e -> hideNotePanel() );
-    return closeButton;
+    this.setVisible(true);
   }
 
   private void hideNotePanel(){ this.setVisible(false); main_panel.remove(this); }
@@ -39,10 +35,69 @@ public class NoteInfo extends JPanel {
     this.add(headerPanel, BorderLayout.NORTH);
   }
 
+  private JButton createCloseWindowButton() {
+    JButton closeButton = new JButton("Close");
+    closeButton.addActionListener( e -> hideNotePanel() );
+    return closeButton;
+  }
+
   private JButton createBackButton() {
-    JButton backButton = new JButton("Close");
+    JButton backButton = new JButton("Back");
     backButton.addActionListener( e -> System.out.println("Back button clicked!") );
     return backButton;
+  }
+
+
+  //middle component showing the description of notes
+  //should be editable
+  private void displayNoteDetails(){
+    JPanel noteDetailsPanel = new JPanel();
+    noteDetailsPanel.setBackground(Color.blue);
+
+    //Scroll and editable note details
+    noteDetailsPanel.setLayout(new BorderLayout());
+    JTextArea detailsTextArea = new JTextArea(this.note.description());
+    JScrollPane scrollPane = new JScrollPane(detailsTextArea);
+
+    //add title
+    JLabel title = new JLabel("Notes");
+    title.setHorizontalAlignment(JLabel.CENTER);
+
+    //save changes button
+    JButton saveChanges = new JButton("Save Changes");
+    saveChanges.addActionListener( e -> {
+      String newText = detailsTextArea.getText();
+      this.note.description(newText);
+      System.out.println("New note description: " + newText);
+    });
+
+    //add components
+    noteDetailsPanel.add(title, BorderLayout.NORTH);
+    noteDetailsPanel.add(scrollPane, BorderLayout.CENTER);
+    noteDetailsPanel.add(saveChanges, BorderLayout.SOUTH);
+
+    this.add(noteDetailsPanel, BorderLayout.CENTER);
+
+  }
+
+  //bottom component showing the children of current note
+  //should be editable
+  private void displayChildNotes(){
+    JPanel childNotesPanel = new JPanel();
+    childNotesPanel.setLayout(new BorderLayout());
+
+    JPanel buttonsPanel = new JPanel();
+
+    buttonsPanel.setBackground(Color.yellow);
+
+    JLabel title = new JLabel("Related Notes");
+    title.setHorizontalAlignment(JLabel.CENTER);
+
+    childNotesPanel.add(title, BorderLayout.NORTH);
+    
+    childNotesPanel.add(buttonsPanel, BorderLayout.SOUTH);
+
+    this.add(childNotesPanel, BorderLayout.SOUTH);
   }
 
 }

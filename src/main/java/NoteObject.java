@@ -31,11 +31,9 @@ public class NoteObject {
 
     this.x = x;
     this.y = y;
-
-    setupLabel();
   }
 
-  private void setupLabel() {
+  public void setupLabel() {
     int paddedWidth = 15;
     int paddedHeight = 10;
 

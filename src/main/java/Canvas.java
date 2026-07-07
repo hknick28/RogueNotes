@@ -50,6 +50,7 @@ public class Canvas extends JPanel {
     note = new NoteObject(name, description, p.x, p.y);
     note.draw(this);
     noteObjects.add(note);
+    note.setupLabel();
 
   }
 
@@ -103,3 +104,4 @@ public class Canvas extends JPanel {
     main_panel.repaint();
   }
 }
+
