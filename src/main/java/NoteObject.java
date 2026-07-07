@@ -14,6 +14,8 @@ public class NoteObject {
 
   private ArrayList<NoteObject> childrenNotes;
 
+
+
   private int x;
   private int y;
 
