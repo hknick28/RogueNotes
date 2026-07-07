@@ -3,6 +3,7 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.function.Consumer;
@@ -151,8 +152,8 @@ private MouseListener setupClickSelection() {
       childrenNotes.add(object);
     }
 
-    public ArrayList<NoteObject> getChildrenNotes(){
-      return (ArrayList<NoteObject>) Collections.unmodifiableList(childrenNotes);
+    public List<NoteObject> getChildrenNotes(){
+      return Collections.unmodifiableList(this.childrenNotes);
     }
 
 }

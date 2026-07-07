@@ -13,6 +13,7 @@ public class NoteInfo extends JPanel {
 
     setupHeader();
     displayNoteDetails();
+    displayChildNotes();
 
     this.setVisible(true);
   }
@@ -86,18 +87,40 @@ public class NoteInfo extends JPanel {
     JPanel childNotesPanel = new JPanel();
     childNotesPanel.setLayout(new BorderLayout());
 
-    JPanel buttonsPanel = new JPanel();
-
-    buttonsPanel.setBackground(Color.yellow);
-
     JLabel title = new JLabel("Related Notes");
     title.setHorizontalAlignment(JLabel.CENTER);
 
     childNotesPanel.add(title, BorderLayout.NORTH);
-    
-    childNotesPanel.add(buttonsPanel, BorderLayout.SOUTH);
+    childNotesPanel.add(setupSubNotes(), BorderLayout.CENTER);
+    childNotesPanel.add(childNoteButtons(), BorderLayout.SOUTH);
 
     this.add(childNotesPanel, BorderLayout.SOUTH);
+  }
+
+  private JPanel childNoteButtons() {
+    JPanel buttonsPanel = new JPanel();
+    buttonsPanel.setLayout(new GridLayout(1, 1));
+    buttonsPanel.setBackground(Color.yellow);
+
+    JButton addNote = new JButton("Add New SubNote");
+
+    addNote.addActionListener( e -> {
+      System.out.println("Add New SubNote");
+    });
+
+    buttonsPanel.add(addNote);
+
+    return buttonsPanel;
+  }
+
+  private JScrollPane setupSubNotes() {
+    DefaultListModel<String> subNoteListModel = new DefaultListModel<>();
+    this.note.getChildrenNotes().forEach(note -> {subNoteListModel.addElement(note.name());});
+
+    JList<String> notes = new JList<>(subNoteListModel);
+
+
+    return new JScrollPane(notes);
   }
 
 }
