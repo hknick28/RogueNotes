@@ -48,10 +48,10 @@ public class Canvas extends JPanel {
     if(name == null || description == null){return;}
 
     note = new NoteObject(name, description, p.x, p.y);
+
+    note.setupLabel();
     note.draw(this);
     noteObjects.add(note);
-    note.setupLabel();
-
   }
 
 
