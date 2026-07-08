@@ -105,7 +105,14 @@ public class NoteInfo extends JPanel {
     JButton addNote = new JButton("Add New SubNote");
 
     addNote.addActionListener( e -> {
-      System.out.println("Add New SubNote");
+      NoteObject newNote;
+      String name = JOptionPane.showInputDialog("Enter A Name:");
+      if(name == null){ return; }
+      newNote = new NoteObject(name, "", 0, 0);//default location for label on map
+
+      this.note.addNoteObject(newNote);
+
+      //update changes onto InfoPanel
     });
 
     buttonsPanel.add(addNote);
