@@ -5,6 +5,8 @@ public class NoteInfo extends JPanel {
   private NoteObject note;
   private JPanel main_panel;
 
+  private DefaultListModel<String> subNoteListModel;
+
   public NoteInfo(NoteObject noteObject, JPanel panel) {
     this.main_panel = panel;
     this.note = noteObject;
@@ -111,8 +113,7 @@ public class NoteInfo extends JPanel {
       newNote = new NoteObject(name, "", 0, 0);//default location for label on map
 
       this.note.addNoteObject(newNote);
-
-      //update changes onto InfoPanel
+      this.subNoteListModel.addElement(newNote.name());//update changes onto InfoPanel
     });
 
     buttonsPanel.add(addNote);
@@ -121,7 +122,7 @@ public class NoteInfo extends JPanel {
   }
 
   private JScrollPane setupSubNotes() {
-    DefaultListModel<String> subNoteListModel = new DefaultListModel<>();
+    subNoteListModel = new DefaultListModel<>();
     this.note.getChildrenNotes().forEach(note -> {subNoteListModel.addElement(note.name());});
 
     JList<String> notes = new JList<>(subNoteListModel);
@@ -129,5 +130,4 @@ public class NoteInfo extends JPanel {
 
     return new JScrollPane(notes);
   }
-
 }
