@@ -87,12 +87,11 @@ public class Canvas extends JPanel {
   }
 
   public void displayInfo(NoteObject noteObject) {
-    NoteInfo infoPanel = new NoteInfo(noteObject, main_panel);
-
     //cover the right half of window
-    int panelWidth = this.getWidth() / 2;
-    int panelHeight = this.getHeight();
+    int panelWidth = main_panel.getWidth() / 2;
+    int panelHeight = main_panel.getHeight();
 
+    NoteInfo infoPanel = new NoteInfo(noteObject, main_panel, this);
     infoPanel.setPreferredSize(new Dimension(panelWidth, panelHeight));
 
     main_panel.add(infoPanel, BorderLayout.EAST);
