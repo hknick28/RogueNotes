@@ -1,28 +1,37 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
 
 public class NoteInfo extends JPanel {
   private NoteObject note;
   private JPanel main_panel;
+  private Canvas canvas;
 
   private DefaultListModel<String> subNoteListModel;
 
-  public NoteInfo(NoteObject noteObject, JPanel panel) {
+  public NoteInfo(NoteObject noteObject, JPanel panel, Canvas canvas) {
     this.main_panel = panel;
+    this.canvas = canvas;
     this.note = noteObject;
     this.setBackground(Color.orange);
     this.setLayout(new BorderLayout());
 
+    setupPanel();
+  }
+
+  private void hideNotePanel(){
+    this.setVisible(false);
+    main_panel.remove(this);
+  }
+
+
+  private void setupPanel(){
     setupHeader();
     displayNoteDetails();
     displayChildNotes();
 
     this.setVisible(true);
   }
-
-  private void hideNotePanel(){ this.setVisible(false); main_panel.remove(this); }
-
-
 
   private void setupHeader(){
     JPanel headerPanel = new JPanel();
@@ -127,6 +136,21 @@ public class NoteInfo extends JPanel {
 
     JList<String> notes = new JList<>(subNoteListModel);
 
+    //add click listener
+    notes.addMouseListener(new  java.awt.event.MouseAdapter() {
+      @Override public void mouseClicked(java.awt.event.MouseEvent e){
+        if(e.getClickCount() != 2){ return; }
+        System.out.println("Mouse clicked!");
+        //find which note was double-clicked
+        int index = notes.locationToIndex(e.getPoint());
+
+        if(index < 0 ){  return; }
+        NoteObject nextNote = note.getChildrenNotes().get(index);
+        System.out.println("Next Note: " + nextNote.name());
+        hideNotePanel();
+        canvas.displayInfo(nextNote);
+      }
+    });
 
     return new JScrollPane(notes);
   }
