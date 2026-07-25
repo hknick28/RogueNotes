@@ -1,0 +1,30 @@
+# === IntelliJ IDEA ===
+.idea/
+*.iws
+*.iml
+*.ipr
+/shelf/
+/.idea/workspace.xml
+/httpRequests/
+/dataSources/
+/dataSources.local.xml
+
+# === Java & Build Compilation ===
+# Ignores all compiled Java bytecode files
+*.class
+
+# Maven build outputs
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.nextDevelopment
+release.properties
+dependency-reduced-pom.xml
+
+# Gradle build outputs (in case you switch later)
+.gradle/
+build/
+
+# === OS Generated Files ===
+.DS_Store
+Thumbs.db
