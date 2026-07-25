@@ -158,4 +158,25 @@ private MouseListener setupClickSelection() {
       return Collections.unmodifiableList(this.childrenNotes);
     }
 
+
+  // Convert NoteObject tree into LabelData tree for saving
+  public LabelData toData() {
+    ArrayList<LabelData> childData = new ArrayList<>();
+    for (NoteObject child : childrenNotes) {
+      childData.add(child.toData());
+    }
+    return new LabelData(this.name, this.description, this.x, this.y, childData);
+  }
+
+  // Reconstruct NoteObject tree from LabelData tree when loading
+  public static NoteObject fromData(LabelData data) {
+    NoteObject note = new NoteObject(data.getName(), data.getDescription(), data.getX(), data.getY());
+    if (data.getSubnotes() != null) {
+      for (LabelData childData : data.getSubnotes()) {
+        note.addNoteObject(NoteObject.fromData(childData));
+      }
+    }
+    note.setupLabel();
+    return note;
+  }
 }

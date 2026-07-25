@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 
 
 public class RogueNotes extends JFrame {
@@ -18,7 +19,10 @@ public class RogueNotes extends JFrame {
 
     panel.add(canvas, BorderLayout.CENTER);
 
-    tools.setOnLoadImg(file -> canvas.loadImg(file));
+    FileHandler fileHandler = new FileHandler();
+
+    tools.setOnLoadRequested(() -> fileHandler.openFile(canvas));
+    tools.setOnSaveRequested(() -> fileHandler.saveProject(canvas));
 
     this.add(tools,  BorderLayout.NORTH);
     this.add(panel,   BorderLayout.CENTER);
