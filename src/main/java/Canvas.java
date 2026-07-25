@@ -7,6 +7,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import  java.util.Stack;
 import java.util.stream.Stream;
 
 /**
@@ -17,11 +18,17 @@ import java.util.stream.Stream;
 public class Canvas extends JPanel {
   private BufferedImage image = null;//none by default
   private ArrayList<NoteObject> noteObjects;
-  private JPanel main_panel;
+  private final JPanel main_panel;
+  private Stack<NoteObject> noteStack;
+  private  NoteObject currentNote;
 
   public Canvas(JPanel parent) {
     main_panel = parent;
     noteObjects = new ArrayList<>();
+    noteStack = new Stack<>();
+
+    currentNote = null;
+
     this.setBackground(Color.white);
     this.setLayout(new BorderLayout());
     initMouseListener();
@@ -87,20 +94,46 @@ public class Canvas extends JPanel {
   }
 
   public void displayInfo(NoteObject noteObject) {
+    this.currentNote = noteObject;
+
     //cover the right half of window
     int panelWidth = main_panel.getWidth() / 2;
     int panelHeight = main_panel.getHeight();
 
-    NoteInfo infoPanel = new NoteInfo(noteObject, main_panel, this);
+    NoteInfo infoPanel = new NoteInfo(currentNote, main_panel, this);
     infoPanel.setPreferredSize(new Dimension(panelWidth, panelHeight));
 
     main_panel.add(infoPanel, BorderLayout.EAST);
 
+    System.out.println("Just added new note: "+currentNote.name());
 
     //sit ontop of canvas contents
     main_panel.setComponentZOrder(infoPanel, 0);
     main_panel.revalidate();
     main_panel.repaint();
   }
+
+  /**
+   * Roll back to the previous note in the stack. If there is no previous note, then do nothing.
+   * Make current note null, will be reset in displayInfo() method.
+   */
+  public void displayPreviousNote(){
+    if(noteStack.isEmpty()){return;}// there is no previous note
+
+    NoteObject newNote = noteStack.pop();//remove from stack
+
+    this.currentNote = null;//make null
+    displayInfo(newNote);
+  }
+
+  public void clearNoteStack(){
+    noteStack.clear();
+  }
+
+  public boolean noteStackEmpty(){
+    return noteStack.isEmpty();
+  }
+
+  public void addSubNoteHistory(){ noteStack.push(currentNote); }
 }
 

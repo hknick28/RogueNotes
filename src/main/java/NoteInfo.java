@@ -49,13 +49,16 @@ public class NoteInfo extends JPanel {
 
   private JButton createCloseWindowButton() {
     JButton closeButton = new JButton("Close");
-    closeButton.addActionListener( e -> hideNotePanel() );
+    closeButton.addActionListener( e -> {hideNotePanel(); canvas.clearNoteStack();} );
     return closeButton;
   }
 
   private JButton createBackButton() {
     JButton backButton = new JButton("Back");
-    backButton.addActionListener( e -> System.out.println("Back button clicked!") );
+    backButton.addActionListener( e -> {
+      if(canvas.noteStackEmpty()){return;}//do nothing if there is no previous note
+      hideNotePanel(); canvas.displayPreviousNote();
+    } );
     return backButton;
   }
 
@@ -140,13 +143,13 @@ public class NoteInfo extends JPanel {
     notes.addMouseListener(new  java.awt.event.MouseAdapter() {
       @Override public void mouseClicked(java.awt.event.MouseEvent e){
         if(e.getClickCount() != 2){ return; }
-        System.out.println("Mouse clicked!");
+
         //find which note was double-clicked
         int index = notes.locationToIndex(e.getPoint());
 
         if(index < 0 ){  return; }
         NoteObject nextNote = note.getChildrenNotes().get(index);
-        System.out.println("Next Note: " + nextNote.name());
+        canvas.addSubNoteHistory();
         hideNotePanel();
         canvas.displayInfo(nextNote);
       }
