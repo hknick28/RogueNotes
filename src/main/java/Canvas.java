@@ -105,8 +105,6 @@ public class Canvas extends JPanel {
 
     main_panel.add(infoPanel, BorderLayout.EAST);
 
-    System.out.println("Just added new note: "+currentNote.name());
-
     //sit ontop of canvas contents
     main_panel.setComponentZOrder(infoPanel, 0);
     main_panel.revalidate();
