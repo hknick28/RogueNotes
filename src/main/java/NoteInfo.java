@@ -1,6 +1,8 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
+import java.awt.List;
+import java.util.ArrayList;
 
 public class NoteInfo extends JPanel {
   private NoteObject note;
@@ -157,4 +159,5 @@ public class NoteInfo extends JPanel {
 
     return new JScrollPane(notes);
   }
+
 }

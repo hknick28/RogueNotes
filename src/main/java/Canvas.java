@@ -30,7 +30,7 @@ public class Canvas extends JPanel {
     currentNote = null;
 
     this.setBackground(Color.white);
-    this.setLayout(new BorderLayout());
+    this.setLayout(null);
     initMouseListener();
   }
 
@@ -133,5 +133,36 @@ public class Canvas extends JPanel {
   }
 
   public void addSubNoteHistory(){ noteStack.push(currentNote); }
+
+
+
+  //for laoding and saving
+  public BufferedImage getBackgroundImage() {
+    return this.image;
+  }
+
+  public void setBackgroundImage(BufferedImage bgImage) {
+    this.image = bgImage;
+    this.repaint();
+  }
+
+  public ArrayList<NoteObject> getNoteObjects() {
+    return this.noteObjects;
+  }
+
+  public void addLoadedNote(NoteObject note) {
+    note.draw(this);
+    this.noteObjects.add(note);
+  }
+
+  public void clearCanvas() {
+    this.removeAll();
+    this.noteObjects.clear();
+    this.noteStack.clear();
+    this.currentNote = null;
+    this.image = null;
+    this.revalidate();
+    this.repaint();
+  }
 }
 
