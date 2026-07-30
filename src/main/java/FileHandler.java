@@ -12,36 +12,39 @@ public class FileHandler {
   private final CanvasManager canvasManager = new CanvasManager();
 
   public void saveProject(Canvas canvas) {
-    System.out.println("Saving project...");
+    System.out.println("Saving project archive...");
     JFileChooser chooser = new JFileChooser();
     chooser.setDialogTitle("Save Canvas Project");
-    chooser.setFileFilter(new FileNameExtensionFilter("Canvas Project (*.json)", "json"));
+
+    // File filter for custom archive extension
+    FileNameExtensionFilter filter = new FileNameExtensionFilter("RogueNotes Project (*.rgp)", "rgp");
+    chooser.setFileFilter(filter);
 
     int result = chooser.showSaveDialog(canvas);
     if (result == JFileChooser.APPROVE_OPTION) {
       File targetFile = chooser.getSelectedFile();
 
-      if (!targetFile.getName().toLowerCase().endsWith(".json")) {
-        targetFile = new File(targetFile.getAbsolutePath() + ".json");
+      // Ensure file ends with .rgp extension
+      if (!targetFile.getName().toLowerCase().endsWith(".rgp")) {
+        targetFile = new File(targetFile.getAbsolutePath() + ".rgp");
       }
 
       try {
         CanvasData data = new CanvasData();
 
-        // 1. Convert Canvas Background Image to Base64
-        BufferedImage bg = canvas.getBackgroundImage();
-        if (bg != null) {
-          data.setBase64ImageData(ImageUtils.toBase64(bg, "png"));
-        }
-
-        // 2. Convert Note Objects to Data DTOs
+        // Convert Note Objects to Data DTOs
         List<LabelData> labelDataList = new ArrayList<>();
         for (NoteObject note : canvas.getNoteObjects()) {
           labelDataList.add(note.toData());
         }
         data.setLabels(labelDataList);
 
-        canvasManager.saveCanvas(data, targetFile);
+        // Retrieve background image from Canvas
+        BufferedImage bgImage = canvas.getBackgroundImage();
+
+        // Save metadata and image into single ZIP archive
+        canvasManager.saveCanvas(data, bgImage, targetFile);
+
         JOptionPane.showMessageDialog(canvas, "Saved successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
       } catch (Exception e) {
         e.printStackTrace();
@@ -54,7 +57,8 @@ public class FileHandler {
     JFileChooser fileChooser = new JFileChooser();
     fileChooser.setDialogTitle("Open Project or Image");
 
-    fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Canvas Project (*.json)", "json"));
+    // Allow opening compressed project archives or standalone images
+    fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("RogueNotes Project (*.rgp, *.zip)", "rgp", "zip"));
     fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Image Files (*.png, *.jpg, *.jpeg)", "png", "jpg", "jpeg"));
 
     int result = fileChooser.showOpenDialog(canvasPanel);
@@ -63,31 +67,32 @@ public class FileHandler {
       String fileName = selectedFile.getName().toLowerCase();
 
       try {
-        if (fileName.endsWith(".json")) {
-          loadCustomProject(selectedFile, canvasPanel);
+        if (fileName.endsWith(".rgp") || fileName.endsWith(".zip")) {
+          loadZipProject(selectedFile, canvasPanel);
         } else if (fileName.endsWith(".png") || fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")) {
           loadImageAsBackground(selectedFile, canvasPanel);
         }
       } catch (Exception ex) {
         ex.printStackTrace();
-        JOptionPane.showMessageDialog(canvasPanel, "Failed to open file.", "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(canvasPanel, "Failed to open file: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
       }
     }
   }
 
-  private void loadCustomProject(File file, Canvas canvasPanel) throws IOException {
-    CanvasData loadedData = canvasManager.loadCanvas(file);
+  private void loadZipProject(File file, Canvas canvasPanel) throws IOException {
+    // Read the archived data stream via CanvasManager
+    CanvasManager.LoadedProject project = canvasManager.loadCanvas(file);
 
     canvasPanel.clearCanvas();
 
-    // Restore embedded background image
-    if (loadedData.getBase64ImageData() != null && !loadedData.getBase64ImageData().isEmpty()) {
-      BufferedImage bgImage = ImageUtils.fromBase64(loadedData.getBase64ImageData());
-      canvasPanel.setBackgroundImage(bgImage);
+    // Restore background image
+    if (project.getBgImage() != null) {
+      canvasPanel.setBackgroundImage(project.getBgImage());
     }
 
-    // Restore note hierarchy
-    if (loadedData.getLabels() != null) {
+    // Restore note object hierarchy
+    CanvasData loadedData = project.getCanvasData();
+    if (loadedData != null && loadedData.getLabels() != null) {
       for (LabelData labelData : loadedData.getLabels()) {
         NoteObject note = NoteObject.fromData(labelData);
         canvasPanel.addLoadedNote(note);
