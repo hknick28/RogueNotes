@@ -1,11 +1,10 @@
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -16,8 +15,10 @@ public class CanvasManager {
 
   public CanvasManager() {
     this.mapper = new ObjectMapper();
-    // Formats JSON nicely so it's human-readable
+    // Formats JSON
     this.mapper.enable(SerializationFeature.INDENT_OUTPUT);
+
+    this.mapper.configure(JsonParser.Feature.AUTO_CLOSE_SOURCE, false);
   }
 
   // Save Canvas Data to zip file
@@ -51,12 +52,13 @@ public class CanvasManager {
       while ((entry = zis.getNextEntry()) != null) {
         String entryName = entry.getName();
 
+        InputStream nonClosingStream = new NonClosingInputStream(zis);
+
         if (entryName.equals("data.json")) {
-          canvasData = mapper.readValue(zis, CanvasData.class);
+          canvasData = mapper.readValue(nonClosingStream, CanvasData.class);
         } else if (entryName.equals("background.png")) {
-          bgImage = ImageIO.read(zis);
+          bgImage = ImageIO.read(nonClosingStream);
         }
-        zis.closeEntry();
       }
     }
 
@@ -74,5 +76,38 @@ public class CanvasManager {
 
     public CanvasData getCanvasData() { return canvasData; }
     public BufferedImage getBgImage() { return bgImage; }
+  }
+
+  private static class NonClosingInputStream extends InputStream {
+    private final InputStream delegate;
+
+    public NonClosingInputStream(InputStream delegate) {
+      this.delegate = delegate;
+    }
+
+    @Override
+    public int read() throws IOException {
+      return delegate.read();
+    }
+
+    @Override
+    public int read(byte[] b, int off, int len) throws IOException {
+      return delegate.read(b, off, len);
+    }
+
+    @Override
+    public int available() throws IOException {
+      return delegate.available();
+    }
+
+    @Override
+    public long skip(long n) throws IOException {
+      return delegate.skip(n);
+    }
+
+    @Override
+    public void close() {
+      // prevents Jackson / ImageIO from closing ZipInputStream
+    }
   }
 }
