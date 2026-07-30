@@ -100,7 +100,7 @@ public class Canvas extends JPanel {
         } else { scale/=zoomFactor; }
 
         // set zooming bounds
-        scale = Math.max(0.3, Math.min(scale, 4.0));
+        scale = Math.max(0.1, Math.min(scale, 4.0));
 
         // ensure zoom happens at mouse location
         Point p = e.getPoint();
@@ -142,8 +142,9 @@ public class Canvas extends JPanel {
 
       //update bounds relative to new font sizes
       Dimension size = label.getPreferredSize();
-      label.setBounds(screenX, screenY, size.width + 10, size.height + 5);
+      label.setBounds(screenX, screenY, size.width + 15, size.height + 10);
     }
+    repaint();
   }
 
   private void creatObjectDialog(Point p) {
@@ -158,6 +159,8 @@ public class Canvas extends JPanel {
     note.setupLabel();
     note.draw(this);
     noteObjects.add(note);
+
+    updateLabelPositionAndSize();
   }
 
 
