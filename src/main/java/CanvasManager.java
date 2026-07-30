@@ -1,3 +1,4 @@
+import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
@@ -9,6 +10,13 @@ public class CanvasManager {
 
   public CanvasManager() {
     this.mapper = new ObjectMapper();
+
+    //temp fix, set max file size
+    StreamReadConstraints constraints = StreamReadConstraints.builder()
+            .maxStringLength(100_000_000)
+            .build();
+
+    this.mapper.getFactory().setStreamReadConstraints(constraints);
     // Formats JSON nicely so it's human-readable
     this.mapper.enable(SerializationFeature.INDENT_OUTPUT);
   }
