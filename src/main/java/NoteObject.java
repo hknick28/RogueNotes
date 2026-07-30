@@ -69,7 +69,7 @@ public class NoteObject {
     if(canvas.contains(this)){return;}
 
     // Setup canvas as subscriber to observer
-    this.dragEvent(e -> {canvas.repaint();});
+    this.dragEvent(e -> {canvas.updateLabelPositionAndSize();});
     this.doubleCLick(e -> {
       canvas.displayInfo(NoteObject.this);
     });
@@ -116,15 +116,13 @@ private MouseListener setupClickSelection() {
           int deltaY = e.getY() - dragStart.y;
 
           //find new x, y pos
-          int newX = label.getX() + deltaX;
-          int newY = label.getY()+ deltaY;
+          int newX = NoteObject.this.x() + deltaX;
+          int newY = NoteObject.this.y() + deltaY;
 
-          //tracking position
+          //update position
           NoteObject.this.x(newX);
           NoteObject.this.y(newY);
 
-          //moving the label
-          NoteObject.this.label.setLocation(newX, newY);
 
           if(updateCanvas != null){ updateCanvas.accept(e); }
         }
@@ -179,4 +177,9 @@ private MouseListener setupClickSelection() {
     note.setupLabel();
     return note;
   }
+
+  public JLabel label(){return this.label;}
+
+
+
 }

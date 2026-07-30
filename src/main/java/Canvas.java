@@ -3,6 +3,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseWheelEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -22,6 +24,12 @@ public class Canvas extends JPanel {
   private Stack<NoteObject> noteStack;
   private  NoteObject currentNote;
 
+  //vars for panning and zoom
+  private double scale = 1.0;
+  private double translateX = 0;
+  private double translateY = 0;
+  private Point lastDragPoint;
+
   public Canvas(JPanel parent) {
     main_panel = parent;
     noteObjects = new ArrayList<>();
@@ -31,20 +39,113 @@ public class Canvas extends JPanel {
 
     this.setBackground(Color.white);
     this.setLayout(null);
-    initMouseListener();
+    initMouseListeners();
   }
 
   // mouse listener for right click
-  void initMouseListener(){
-    this.addMouseListener(new MouseAdapter(){
-      @Override
-      public void mousePressed(MouseEvent e){
-        // right click triggers NoteObject creation
-        if(!SwingUtilities.isRightMouseButton(e)){return;}
-        creatObjectDialog(e.getPoint());
+  void initMouseListeners() {
 
+
+    //create note
+    MouseAdapter adapter = new MouseAdapter() {
+      @Override
+      public void mousePressed(MouseEvent e) {
+        //Create note
+        if (SwingUtilities.isRightMouseButton(e)) {
+          Point p = screenToCanvasCoords(e.getPoint());
+          creatObjectDialog(p);
+          return;
+        }
+        //start dragging
+        if (SwingUtilities.isLeftMouseButton(e)) {
+          lastDragPoint = e.getPoint();
+          return;
+        }
       }
-    });
+
+      @Override
+      public void mouseReleased(MouseEvent e) {
+        //reset drag point
+        if (SwingUtilities.isLeftMouseButton(e)) {
+          lastDragPoint = null;
+        }
+      }
+
+      @Override
+      public void mouseDragged(MouseEvent e) {
+        if (!SwingUtilities.isLeftMouseButton(e) || lastDragPoint == null) { return; }
+
+        System.out.println("Mouse drag point: " + lastDragPoint);
+        //calculate drag offsets
+        int dx =  e.getX() - lastDragPoint.x;
+        int dy =  e.getY() - lastDragPoint.y;
+
+        translateX+=dx;
+        translateY+=dy;
+
+        lastDragPoint = e.getPoint();
+
+        updateLabelPositionAndSize();
+        repaint();
+      }
+
+
+      @Override
+      public void mouseWheelMoved(MouseWheelEvent e){
+        System.out.println("Wheel moved");
+        double zoomFactor = 1.1;
+        double oldScale = scale;
+
+        // nagative means zoom-in, positive means zoom out
+        if(e.getWheelRotation() < 0){
+          scale*=zoomFactor;
+        } else { scale/=zoomFactor; }
+
+        // set zooming bounds
+        scale = Math.max(0.3, Math.min(scale, 4.0));
+
+        // ensure zoom happens at mouse location
+        Point p = e.getPoint();
+
+        translateX = p.x - (p.x - translateX) * (scale/oldScale);
+        translateY = p.y - (p.y - translateY) * (scale/oldScale);
+
+        updateLabelPositionAndSize();
+        repaint();
+      }
+    };
+
+    this.addMouseListener(adapter);
+    this.addMouseMotionListener(adapter);
+    this.addMouseWheelListener(adapter);
+  }
+
+
+  private Point screenToCanvasCoords(Point point) {
+    int canvasX = (int) ((point.x - translateX) / scale);
+    int canvasY = (int) ((point.y - translateY) / scale);
+    return new Point(canvasX, canvasY);
+  }
+
+
+  void updateLabelPositionAndSize() {
+    for(NoteObject note : noteObjects) {
+      JLabel label = note.label();
+      if(label == null){ continue; }
+
+      //calculate relative pixel position
+      int screenX = (int) (note.x() * scale + translateX);
+      int screenY = (int) (note.y() * scale + translateY);
+
+      //scale fonts
+      float baseFontSize = 20.0f;
+      float scaledFontSize = (float) (baseFontSize * scale);
+      label.setFont(label.getFont().deriveFont(Math.max(8.0f, scaledFontSize)));
+
+      //update bounds relative to new font sizes
+      Dimension size = label.getPreferredSize();
+      label.setBounds(screenX, screenY, size.width + 10, size.height + 5);
+    }
   }
 
   private void creatObjectDialog(Point p) {
@@ -62,6 +163,7 @@ public class Canvas extends JPanel {
   }
 
 
+  public double scale(){ return scale; }
 
   /**
    * Load png and jpg files onto the canvas.
@@ -82,7 +184,20 @@ public class Canvas extends JPanel {
 
     //draw img
     if(image == null) {return;}
-    g.drawImage(image, 0, 0, this);
+
+    //cast ot 2d graphics
+    Graphics2D g2d = (Graphics2D) g.create();
+
+    // Create and apply the transform matrix
+    java.awt.geom.AffineTransform transform = new java.awt.geom.AffineTransform();
+    transform.translate(translateX, translateY); // Apply Panning
+    transform.scale(scale, scale);               // Apply Zooming
+
+    g2d.transform(transform);
+
+    // Draw background image using the transformed coordinates
+    g2d.drawImage(image, 0, 0, this);
+
 
     //redraw all objects on canvas
     noteObjects.stream().forEach(note -> note.draw(this));
@@ -153,6 +268,7 @@ public class Canvas extends JPanel {
   public void addLoadedNote(NoteObject note) {
     note.draw(this);
     this.noteObjects.add(note);
+    updateLabelPositionAndSize();
   }
 
   public void clearCanvas() {
@@ -161,6 +277,9 @@ public class Canvas extends JPanel {
     this.noteStack.clear();
     this.currentNote = null;
     this.image = null;
+    this.scale = 1.0;
+    this.translateX = 0;
+    this.translateY = 0;
     this.revalidate();
     this.repaint();
   }
