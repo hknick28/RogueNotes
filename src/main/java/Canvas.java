@@ -75,7 +75,6 @@ public class Canvas extends JPanel {
       public void mouseDragged(MouseEvent e) {
         if (!SwingUtilities.isLeftMouseButton(e) || lastDragPoint == null) { return; }
 
-        System.out.println("Mouse drag point: " + lastDragPoint);
         //calculate drag offsets
         int dx =  e.getX() - lastDragPoint.x;
         int dy =  e.getY() - lastDragPoint.y;
@@ -92,7 +91,6 @@ public class Canvas extends JPanel {
 
       @Override
       public void mouseWheelMoved(MouseWheelEvent e){
-        System.out.println("Wheel moved");
         double zoomFactor = 1.1;
         double oldScale = scale;
 
